@@ -90,8 +90,7 @@ COOL:	MOVLW	0x02				; WREG = 2
 	MOVLW	0x04				; WREG = 4
 	MOVWF	PORTD,A				; set PORTD.2 to high
 	SLEEP					; 
-RDEC:	MOVLW	refTemp				; WREG = refTemp
-	MOVWF	tempNum,A			; store temporary numerator
+RDEC:	MOVWF	tempNum,A			; store temporary numerator
 	MOVLW	0x00				; WREG = 0
 	MOVWF	tempQuo,A			; Clear temporary quotient
 	MOVLW	0x0A				; WREG = 10
@@ -113,8 +112,7 @@ midRD:	INCF	tempQuo,A			; Increment temporary quotient
 	MOVFF	tempNum,refTempMidDig		; Store tens digit of refTemp for display
 	MOVFF	tempQuo,refTempHighDig		; Store hundreds digit of refTemp for display
 	RETURN					; Return to main program
-MDEC:	MOVLW	measuredTemp			; WREG = measuredTemp
-	MOVWF	tempNum,A			; store temporary numerator
+MDEC:	MOVWF	tempNum,A			; store temporary numerator
 	MOVLW	0x00				; WREG = 0
 	MOVWF	tempQuo,A			; Clear temporary quotient
 	MOVLW	0x0A				; WREG = 10
@@ -137,27 +135,7 @@ midMD:	INCF	tempQuo,A			; Increment temporary quotient
 	MOVFF	tempQuo,measuredTempHighDig	; Store hundreds digit of measuredTemp for display
 	RETURN					; Return to main program
 NEGM:	NEGF	WREG,A				; Use 2's compliment on WREG
-	MOVWF	tempNum,A			; store temporary numerator
-	MOVLW	0x00				; WREG = 0
-	MOVWF	tempQuo,A			; Clear temporary quotient
-	MOVLW	0x0A				; WREG = 10
-lowNMD: INCF	tempQuo,A			; Increment temporary quotient
-	SUBWF	tempNum,A			; WREG = tempNum - 10
-	BC	lowNMD				; Branch to lowNMD if still positive
-	ADDWF	tempNum,A			; WREG = tempNum + 10
-	DECF	tempQuo,A			; Decrement temporary quotient
-	MOVFF	tempNum,measuredTempLowDig	; Store ones digit of refTemp for display
-	MOVFF	tempQuo,tempNum,A		; Move temporary quotient to temporary numerator
-	MOVLW	0x00				; WREG = 0
-	MOVWF	tempQuo,A			; Clear temporary quotient
-	MOVLW	0x0A				; WREG = 10
-midNMD:INCF	tempQuo,A			; Increment temporary quotient
-	SUBWF	tempNum,A			; WREG = tempNum - 10
-	BC	midNMD				; Branch to midNMD if still positive
-	ADDWF	tempNum,A			; WREG = tempNum + 10
-	DECF	tempQuo,A			; Decrement temporary quotient
-	MOVFF	tempNum,measuredTempMidDig	; Store tens digit of measuredTemp for display
-	MOVFF	tempQuo,measuredTempHighDig	; Store hundreds digit of measuredTemp for display
+	CALL	MDEC				; call MDEC function to get decimal value of measuredTemp for display
 	BRA	HEAT				; Branch to HEAT
 END
 
