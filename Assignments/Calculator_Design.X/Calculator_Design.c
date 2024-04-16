@@ -4,25 +4,22 @@
  *
  * Created on March 30, 2024, 1:04 AM
  * ---------------------
- * Title: Design a Counter
+ * Title: Design a Calculator
  * ---------------------
  * Program Details:
- * The purpose of this program is to create a simple counter that displays
- * the values 0-F on a 7 segment LED display using 7 outputs, RD[7:0],
- * and 5 inputs, Inner_loop, Middle_loop, Outer_loop, RB0 and RB1. Using
- * the two input buttons RB0 and RB1 the user is able to decrement or
- * increment, respectively, the value display on the 7 segment LED display
- * and loop through the values. If the user presses both buttons at the same
- * time the LED display will reset to 0 and if the user stops pressing any of
- * the buttons the LED will continue to display the last value.
- * Inputs: Inner_loop, Middle_loop, Outer_loop, RB0, RB1 (input)
- * Outputs: RD[7:0] (output)
- * Setup: PIC47K42 using a 9V battery and power module to produce 3.3V,
- * along with a 7 segment LED and two buttons.
+ * The purpose of this program is to create a simple calculator that takes three
+ * inputs from the user: the first value X_Input_REG, the operation code 
+ * Operation_REG, and the second value Y_Input_REG. The program then calculates
+ * the result and stores it in Display_Result_REG and displays it for the user
+ * to view with LEDs displaying the binary value of the result.
+ * Inputs: X_Input_REG, Operation_REG, Y_Input_REG, RB[7:4] (input)
+ * Outputs: RA[3:0], RB[3:0], RD[7:0] (output)
+ * Setup: PIC47K42 using a 9V battery and power module to produce 3.3V, a 4x4
+ * keypad, along with 12 LEDs.
  * Date: Mar 27, 2024
  * File Dependencies / Libraries: It is required to include the 
- * AssemblyConfig.inc in the Header Folder
- * Compiler: MPLAB IDE v6.20, xc8 v2.46, pic-as v2.46
+ * ConfigFile.h in the Header Folder
+ * Compiler: MPLAB IDE v6.20, xc8 v2.46
  * Author: Tony Rochman
  * Versions:
  *       V1.0: Original
@@ -33,13 +30,12 @@
 
 #include <xc.h>
 #include "D:\SSU\EE_310_Lab\Assignments\Calculator_Design.X\ConfigFile.h"
-// #include "C:/Program Files/Microchip/xc8/v2.46/pic/include/proc/pic18f47k42.h"
 #include <stdlib.h>
 
 #define _XTAL_FREQ 4000000                 // Fosc  frequency for _delay()  library
 #define FCY    _XTAL_FREQ/4
-#define MSTIME1 150
-#define MSTIME2 500
+#define MSTIME1 1
+#define MSTIME2 1
 
 void Initialize(void);
 void Operation(int, int, int);
@@ -48,15 +44,16 @@ void Get_X_Input(void);
 void Get_Y_Input(void);
 void Get_Operation_Input(void);
 
-int X_Input_REG = 0;
-int Y_Input_REG = 0;
-int Operation_REG = 0;
-int Result_Input_REG = 0;
-int Display_Result_REG = 0;
 const int __at(0x30) keypad[4][4] = {1, 2, 3, 10,
                               4, 5, 6, 11,
                               7, 8, 9, 12,
                               14, 0, 15, 13};
+
+int X_Input_REG __at(0x40);
+int Y_Input_REG __at(0x42);
+int Operation_REG __at(0x44);
+int Result_Input_REG __at(0x46);
+int Display_Result_REG __at(0x48);
 
 void __at(0x60) main(void) {
     
@@ -70,6 +67,7 @@ void __at(0x60) main(void) {
         Y_Input_REG = 0;
         Operation_REG = 0;
         Display_Result_REG = 0;
+        Result_Input_REG = 0;
         __delay_ms(MSTIME2);                                    // Delay
         while(PORTB == 0x0F);                                   // Wait for user to press a key
         Get_X_Input();                                          // Get X_Input_REG value from user input on the keypad
@@ -110,34 +108,40 @@ void Initialize(void) {
 };
 
 void Operation(int x, int y, int op){
-    int result = 0;
     switch(op) {
         case 10:
-            result = x + y;
+            Display_Result_REG = x + y;
             PORTA = 0;
+            PORTB = 0x0F;
+            PORTD = Display_Result_REG;
             break;
         case 11:
-            result = x - y;
-            if(result < 0) {
-                result = abs(result);
+            Display_Result_REG = x - y;
+            if(Display_Result_REG < 0) {
+                Display_Result_REG = abs(Display_Result_REG);
                 PORTA = 0x01;
+                PORTB = 0x0F;
+                PORTD = Display_Result_REG;
             } else {
                 PORTA = 0;
+                PORTB = 0x0F;
+                PORTD = Display_Result_REG;
             }
             break;
         case 12:
-            result = x * y;
+            Display_Result_REG = x * y;
             PORTA = 0;
+            PORTB = 0x0F;
+            PORTD = Display_Result_REG;
             break;
         case 13:
-            result = x / y;
+            Display_Result_REG = x / y;
             PORTA = 0;
+            PORTB = 0x0F;
+            PORTD = Display_Result_REG;
             break;
     }
-    PORTB = 0x0F;
-    Display_Result_REG = result;
-    PORTD = Display_Result_REG;
-};
+    };
 
 int Keypad_Check(void) {
   int input = 0, col = 0, row = 0, key = 0, row_temp = 0;
