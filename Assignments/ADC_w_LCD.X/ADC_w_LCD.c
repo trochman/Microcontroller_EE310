@@ -43,12 +43,26 @@ void main(void)
     LCD_Init();                    /* Initialize 16x2 LCD */
     ADC_Init();                     // Call to ADC_Init function defined below;
     
+    PORTD = 0x00;
+    LATD = 0x00;
+    ANSELD = 0x00;
+    TRISD = 0x00;
+    
+    // Initialize PORTB as outputs
+    PORTB = 0x00;
+    LATB = 0x00;
+    ANSELB = 0x00;
+    TRISB = 0x00;
+    
     while (1) {
         ADCON0bits.GO = 1;      // Set ADCON0.Go to start conversion
         while (ADCON0bits.GO);  //Wait for conversion to finish
         digital = (ADRESH*256) | (ADRESL);      //Combine 8-bit LSB and 2-bit MSB
         voltage = digital * ((float)Vref / (float)(4096));  // define voltage = digital*Vref/4096
         lux = voltage * 31.746;
+        
+        PORTD = ADRESL;
+        PORTB = ADRESH;
         
 //        /*This is used to convert integer value to ASCII string*/
 //        sprintf(data,"%.2f",voltage);
@@ -59,7 +73,7 @@ void main(void)
 //        LCD_String_xy(2,4,data);   /*Display string at location(row,location). */
 //                                   /* This function passes string to display */   
         
-        sprintf(data,"%.2f",lux);
+        sprintf(data,"%.0f",lux);
         strcat(data," Lux");	/*Concatenate result and unit to print*/
     
         LCD_String_xy(1,0,"Input Light:");    /* Display string at location(row,location). */
@@ -172,5 +186,5 @@ void MSdelay(unsigned int val)
 {
      unsigned int i,j;
         for(i=0;i<val;i++)
-            for(j=0;j<165;j++);      /*This count Provide delay of 1 ms for 8MHz Frequency */
+            for(j=0;j<1;j++);      /*This count Provide delay of 1 ms for 8MHz Frequency */
 }
