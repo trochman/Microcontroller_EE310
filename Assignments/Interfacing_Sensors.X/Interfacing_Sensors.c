@@ -53,12 +53,12 @@ void __at(0x90) main(void) {
     __delay_ms(2000);
     if (value1 == secretcode1 && value2 == secretcode2){
         PORTAbits.RA5 = 1;
-        for (int count = 0; count <= 5; count++){
+        for (int count = 0; count <= 3; count++){
             PORTBbits.RB2 = 1;
-            __delay_ms(1200);
+            __delay_ms(600);
             //PORTAbits.RA5 = ~PORTAbits.RA5;
             PORTBbits.RB2 = ~PORTBbits.RB2;
-            __delay_ms(1200);
+            __delay_ms(600);
         }
         PORTAbits.RA5 = 0;
     }

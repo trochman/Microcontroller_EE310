@@ -47,7 +47,7 @@ int Get_Value(int input) {
                 Display_Value(temp1);
                 if (PORTAbits.RA0 == 1) {
                     temp1++;
-                    __delay_ms(2000);
+                    __delay_ms(1000);
                 }
                 else {
                     asm("NOP");
@@ -61,7 +61,7 @@ int Get_Value(int input) {
                 Display_Value(temp2);
                 if (PORTAbits.RA1 == 1) {
                     temp2++;
-                    __delay_ms(2000);
+                    __delay_ms(1000);
                 }
                 else {
                     asm("NOP");
